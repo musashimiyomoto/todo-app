@@ -3,6 +3,9 @@ export
 
 export PROJECT_ROOT := $(shell pwd)
 
+run:
+	@go run cmd/app/main.go
+
 up:
 	@docker compose up --build
 

@@ -69,14 +69,22 @@ func Trace() Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			log := core_loger.FromContext(ctx)
+			rw := core_http_response.NewResponseWriter(w)
 
 			before := time.Now()
 
-			log.Debug("start", zap.Time("time", before.UTC()))
+			log.Debug(
+				">>> Start HTTP request",
+				zap.Time("time", before.UTC()),
+			)
 
 			next.ServeHTTP(w, r)
 
-			log.Debug("done", zap.Duration("latency", time.Since(before)))
+			log.Debug(
+				"<<< Finisg HTTP request",
+				zap.Int("status code", rw.GetStatusCodeOrPanic()),
+				zap.Duration("latency", time.Since(before)),
+			)
 		})
 	}
 }

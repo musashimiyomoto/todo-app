@@ -3,6 +3,11 @@ export
 
 export PROJECT_ROOT := $(shell pwd)
 
+run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	go mod tidy && \
+	go run cmd/app/main.go
+
 up:
 	@docker compose up --build
 

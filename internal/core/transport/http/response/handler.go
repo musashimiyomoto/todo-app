@@ -20,6 +20,14 @@ func NewHTTPResponseHandler(log *core_loger.Logger, rw http.ResponseWriter) *HTT
 	return &HTTPResponseHandler{log: log, rw: rw}
 }
 
+func (h *HTTPResponseHandler) JSONResponse(responseBody any, statusCode int) {
+	h.rw.WriteHeader(statusCode)
+
+	if err := json.NewEncoder(h.rw).Encode(responseBody); err != nil {
+		h.log.Error("Write HTTP response", zap.Error(err))
+	}
+}
+
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
 		statusCode int
@@ -57,14 +65,10 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 }
 
 func (h *HTTPResponseHandler) errorResponse(statusCode int, err error, msg string) {
-	h.rw.WriteHeader(statusCode)
-
 	response := map[string]string{
 		"message": msg,
 		"error":   err.Error(),
 	}
 
-	if err := json.NewEncoder(h.rw).Encode(response); err != nil {
-		h.log.Error("Write HTTP response", zap.Error(err))
-	}
+	h.JSONResponse(response, statusCode)
 }

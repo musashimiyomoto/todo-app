@@ -23,13 +23,6 @@ func (s *UsersService) GetUsers(ctx context.Context, limit *int, offset *int) ([
 		)
 	}
 
-	if limit != nil && offset != nil && *limit <= *offset {
-		return nil, fmt.Errorf(
-			"Invalid query params: 'limit' must be greater than 'offset': %w",
-			core_errors.ErrInvalidArgument,
-		)
-	}
-
 	userDomains, err := s.usersRepository.GetUsers(ctx, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("Get users from repository: %w", err)

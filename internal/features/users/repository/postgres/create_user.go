@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/musashimiyomoto/todo-app/internal/core/domain"
+	domain "github.com/musashimiyomoto/todo-app/internal/core/domain"
 )
 
 func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (domain.User, error) {

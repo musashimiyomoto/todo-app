@@ -1,8 +1,25 @@
 package users_postgres_repository
 
+import domain "github.com/musashimiyomoto/todo-app/internal/core/domain"
+
 type UserModel struct {
-	ID          int     `db:"id"`
-	Version     int     `db:"version"`
-	FullName    string  `db:"full_name"`
-	PhoneNumber *string `db:"phone_number"`
+	ID          int
+	Version     int
+	FullName    string
+	PhoneNumber *string
+}
+
+func userDomainsFromModels(userModels []UserModel) []domain.User {
+	usersDomains := make([]domain.User, len(userModels))
+
+	for i, userModel := range userModels {
+		usersDomains[i] = domain.NewUser(
+			userModel.ID,
+			userModel.Version,
+			userModel.FullName,
+			userModel.PhoneNumber,
+		)
+	}
+
+	return usersDomains
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/musashimiyomoto/todo-app/internal/core/domain"
+	domain "github.com/musashimiyomoto/todo-app/internal/core/domain"
 )
 
 func (s *UsersService) CreateUser(ctx context.Context, user domain.User) (domain.User, error) {
@@ -12,10 +12,10 @@ func (s *UsersService) CreateUser(ctx context.Context, user domain.User) (domain
 		return domain.User{}, fmt.Errorf("Validate user domain: %w", err)
 	}
 
-	user, err := s.usersRepository.CreateUser(ctx, user)
+	userDomain, err := s.usersRepository.CreateUser(ctx, user)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("Create user in repository: %w", err)
 	}
 
-	return user, nil
+	return userDomain, nil
 }

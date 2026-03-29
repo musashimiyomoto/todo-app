@@ -42,7 +42,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	case errors.Is(err, core_errors.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
-	case errors.Is(err, core_errors.ErrInvalidArgument):
+	case errors.Is(err, core_errors.ErrNotFound):
 		statusCode = http.StatusNotFound
 		logFunc = h.log.Debug
 	case errors.Is(err, core_errors.ErrConflict):

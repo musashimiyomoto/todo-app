@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"net/http"
 
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_errors "github.com/musashimiyomoto/todo-app/internal/core/errors"
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
 	"go.uber.org/zap"
 )
 
 type HTTPResponseHandler struct {
-	log *core_loger.Logger
+	log *core_logger.Logger
 	rw  http.ResponseWriter
 }
 
-func NewHTTPResponseHandler(log *core_loger.Logger, rw http.ResponseWriter) *HTTPResponseHandler {
+func NewHTTPResponseHandler(log *core_logger.Logger, rw http.ResponseWriter) *HTTPResponseHandler {
 	return &HTTPResponseHandler{log: log, rw: rw}
 }
 

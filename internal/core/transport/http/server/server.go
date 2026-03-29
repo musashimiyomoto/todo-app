@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
 	"go.uber.org/zap"
 )
@@ -14,13 +14,13 @@ import (
 type HTTPServer struct {
 	mux        *http.ServeMux
 	config     Config
-	log        *core_loger.Logger
+	log        *core_logger.Logger
 	middleware []core_http_middleware.Middleware
 }
 
 func NewHTTPServer(
 	config Config,
-	log *core_loger.Logger,
+	log *core_logger.Logger,
 	middleware ...core_http_middleware.Middleware,
 ) *HTTPServer {
 	return &HTTPServer{

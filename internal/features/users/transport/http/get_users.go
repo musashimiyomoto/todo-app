@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_http_response "github.com/musashimiyomoto/todo-app/internal/core/transport/http/response"
 	core_http_utils "github.com/musashimiyomoto/todo-app/internal/core/transport/http/utils"
 )
@@ -13,7 +13,7 @@ type GetUsersResponse []UserDTOResponse
 
 func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	log := core_loger.FromContext(ctx)
+	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
 	limit, offset, err := getLimitOffsetQueryParams(r)

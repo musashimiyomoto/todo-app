@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_postgres_pool "github.com/musashimiyomoto/todo-app/internal/core/repository/postgres/pool"
 	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/musashimiyomoto/todo-app/internal/core/transport/http/server"
@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func initHTTPServer(logger *core_loger.Logger, pool *core_postgres_pool.ConnectionPool) *core_http_server.HTTPServer {
+func initHTTPServer(logger *core_logger.Logger, pool *core_postgres_pool.ConnectionPool) *core_http_server.HTTPServer {
 	logger.Debug("Initializing feature", zap.String("feature", "users"))
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
@@ -46,7 +46,7 @@ func main() {
 	)
 	defer cancel()
 
-	logger, err := core_loger.NewLogger(core_loger.NewConfigMust())
+	logger, err := core_logger.NewLogger(core_logger.NewConfigMust())
 	if err != nil {
 		fmt.Println("Failed to init application logger")
 		os.Exit(1)

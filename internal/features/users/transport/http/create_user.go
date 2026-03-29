@@ -3,8 +3,8 @@ package users_transport_http
 import (
 	"net/http"
 
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	domain "github.com/musashimiyomoto/todo-app/internal/core/domain"
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
 	core_http_request "github.com/musashimiyomoto/todo-app/internal/core/transport/http/request"
 	core_http_response "github.com/musashimiyomoto/todo-app/internal/core/transport/http/response"
 )
@@ -18,7 +18,7 @@ type CreateUserResponse UserDTOResponse
 
 func (h *UsersHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	log := core_loger.FromContext(ctx)
+	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
 	var request CreateUserRequest

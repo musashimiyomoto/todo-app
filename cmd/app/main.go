@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
-	core_postgres_pool "github.com/musashimiyomoto/todo-app/internal/core/repository/postgres/pool"
+	core_pgx_pool "github.com/musashimiyomoto/todo-app/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/musashimiyomoto/todo-app/internal/core/transport/http/server"
 	users_postgres_repository "github.com/musashimiyomoto/todo-app/internal/features/users/repository/postgres"
@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func initHTTPServer(logger *core_logger.Logger, pool *core_postgres_pool.ConnectionPool) *core_http_server.HTTPServer {
+func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_http_server.HTTPServer {
 	logger.Debug("Initializing feature", zap.String("feature", "users"))
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
@@ -54,7 +54,7 @@ func main() {
 	defer logger.Close()
 
 	logger.Debug("Initializing database connection pool...")
-	pool, err := core_postgres_pool.NewConnectionPool(ctx, core_postgres_pool.NewConfigMust())
+	pool, err := core_pgx_pool.NewPool(ctx, core_pgx_pool.NewConfigMust())
 	if err != nil {
 		logger.Fatal("Failed to init database connection pool", zap.Error(err))
 	}

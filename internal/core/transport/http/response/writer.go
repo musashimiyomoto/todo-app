@@ -17,13 +17,13 @@ func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
 }
 
 func (rw *ResponseWriter) WriteHeader(statusCode int) {
-	rw.WriteHeader(statusCode)
+	rw.ResponseWriter.WriteHeader(statusCode)
 	rw.statusCode = statusCode
 }
 
-func (rw *ResponseWriter) GetStatusCodeOrPanic() int {
+func (rw *ResponseWriter) GetStatusCode() int {
 	if rw.statusCode == StatusCodeUnInitialized {
-		panic("No status code set")
+		return http.StatusOK
 	}
 
 	return rw.statusCode

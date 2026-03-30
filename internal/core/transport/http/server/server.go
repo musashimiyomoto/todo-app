@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
 	"go.uber.org/zap"
 )
@@ -14,13 +14,13 @@ import (
 type HTTPServer struct {
 	mux        *http.ServeMux
 	config     Config
-	log        *core_loger.Logger
+	log        *core_logger.Logger
 	middleware []core_http_middleware.Middleware
 }
 
 func NewHTTPServer(
 	config Config,
-	log *core_loger.Logger,
+	log *core_logger.Logger,
 	middleware ...core_http_middleware.Middleware,
 ) *HTTPServer {
 	return &HTTPServer{
@@ -31,19 +31,19 @@ func NewHTTPServer(
 	}
 }
 
-func (h *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
+func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 	for _, router := range routers {
 		prefix := "/api" + string(router.apiVersion)
 
-		h.mux.Handle(prefix+"/", http.StripPrefix(prefix, router.mux))
+		s.mux.Handle(prefix+"/", http.StripPrefix(prefix, router.WithMiddleware()))
 	}
 }
 
-func (h *HTTPServer) Run(ctx context.Context) error {
-	mux := core_http_middleware.ChainMiddleware(h.mux, h.middleware...)
+func (s *HTTPServer) Run(ctx context.Context) error {
+	mux := core_http_middleware.ChainMiddleware(s.mux, s.middleware...)
 
 	server := &http.Server{
-		Addr:    h.config.Addr,
+		Addr:    s.config.Addr,
 		Handler: mux,
 	}
 
@@ -52,7 +52,7 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 	go func() {
 		defer close(ch)
 
-		h.log.Warn("Start HTTP Server", zap.String("Addr", h.config.Addr))
+		s.log.Warn("Start HTTP Server", zap.String("Addr", s.config.Addr))
 
 		err := server.ListenAndServe()
 
@@ -67,9 +67,9 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 			return fmt.Errorf("Listen and serve HTTP: %w", err)
 		}
 	case <-ctx.Done():
-		h.log.Warn("Shutdown HTTP server...")
+		s.log.Warn("Shutdown HTTP server...")
 
-		shutDownCtx, cancel := context.WithTimeout(context.Background(), h.config.ShutdownTimeout)
+		shutDownCtx, cancel := context.WithTimeout(context.Background(), s.config.ShutdownTimeout)
 		defer cancel()
 
 		if err := server.Shutdown(shutDownCtx); err != nil {
@@ -78,7 +78,7 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 			return fmt.Errorf("Shutdown HTTP server: %w", err)
 		}
 
-		h.log.Warn("HTTP server stopped")
+		s.log.Warn("HTTP server stopped")
 	}
 
 	return nil

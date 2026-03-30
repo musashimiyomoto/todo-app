@@ -5,8 +5,8 @@ export PROJECT_ROOT := $(shell pwd)
 
 run:
 	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
-	go mod tidy && \
-	go run cmd/app/main.go
+	export POSTGRES_HOST=localhost && \
+	go run ${PROJECT_ROOT}/cmd/app/main.go
 
 up:
 	@docker compose up --build
@@ -18,7 +18,7 @@ cleanup:
 	@read -p "Clean all data? [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
 		docker compose down && \
-		sudo rm -rf out/pgdata && \
+		sudo rm -rf ${PROJECT_ROOT}/out/pgdata && \
 		echo "Clean success!"; \
 	else \
 		echo "Clean canceled!"; \

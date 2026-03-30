@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Addr            string        `envconfig:"ADDR" required:"true"`
-	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" required:"true"`
+	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
 }
 
 func NewConfig() (Config, error) {
@@ -25,7 +25,7 @@ func NewConfig() (Config, error) {
 func NewConfigMust() Config {
 	config, err := NewConfig()
 	if err != nil {
-		err = fmt.Errorf("Get HTTP config: %w", err)
+		panic("Get HTTP config")
 	}
 
 	return config

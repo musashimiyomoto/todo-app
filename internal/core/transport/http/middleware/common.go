@@ -1,12 +1,11 @@
 package core_http_middleware
 
 import (
-	"context"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
-	core_loger "github.com/musashimiyomoto/todo-app/internal/core/logger"
+	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_http_response "github.com/musashimiyomoto/todo-app/internal/core/transport/http/response"
 	"go.uber.org/zap"
 )
@@ -29,7 +28,7 @@ func RequestID() Middleware {
 	}
 }
 
-func Logger(log *core_loger.Logger) Middleware {
+func Logger(log *core_logger.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := r.Header.Get(requestIDHeader)
@@ -39,9 +38,35 @@ func Logger(log *core_loger.Logger) Middleware {
 				zap.String("url", r.URL.String()),
 			)
 
-			ctx := context.WithValue(r.Context(), "log", l)
+			ctx := core_logger.ToContext(r.Context(), l)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func Trace() Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			log := core_logger.FromContext(ctx)
+			rw := core_http_response.NewResponseWriter(w)
+
+			before := time.Now()
+
+			log.Debug(
+				">>> Start HTTP request",
+				zap.String("http_method", r.Method),
+				zap.Time("time", before.UTC()),
+			)
+
+			next.ServeHTTP(rw, r)
+
+			log.Debug(
+				"<<< Finish HTTP request",
+				zap.Int("status_code", rw.GetStatusCode()),
+				zap.Duration("latency", time.Since(before)),
+			)
 		})
 	}
 }
@@ -50,7 +75,7 @@ func Panic() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			log := core_loger.FromContext(ctx)
+			log := core_logger.FromContext(ctx)
 			responseHandler := core_http_response.NewHTTPResponseHandler(log, w)
 
 			defer func() {
@@ -60,31 +85,6 @@ func Panic() Middleware {
 			}()
 
 			next.ServeHTTP(w, r)
-		})
-	}
-}
-
-func Trace() Middleware {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			log := core_loger.FromContext(ctx)
-			rw := core_http_response.NewResponseWriter(w)
-
-			before := time.Now()
-
-			log.Debug(
-				">>> Start HTTP request",
-				zap.Time("time", before.UTC()),
-			)
-
-			next.ServeHTTP(w, r)
-
-			log.Debug(
-				"<<< Finisg HTTP request",
-				zap.Int("status code", rw.GetStatusCodeOrPanic()),
-				zap.Duration("latency", time.Since(before)),
-			)
 		})
 	}
 }

@@ -1,4 +1,4 @@
-package core_loger
+package core_logger
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	Level  string `envconfig:"LEVEL" required:"true"`
+	Level  string `envconfig:"LEVEL" default:"DEBUG"`
 	Folder string `envconfig:"FOLDER" required:"true"`
 }
 
@@ -24,7 +24,7 @@ func NewConfig() (Config, error) {
 func NewConfigMust() Config {
 	config, err := NewConfig()
 	if err != nil {
-		err = fmt.Errorf("Get Logger config: %w", err)
+		panic("Get logger config")
 	}
 
 	return config

@@ -3,25 +3,32 @@ package core_http_server
 import (
 	"fmt"
 	"net/http"
+
+	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
 )
 
 type ApiVersion string
 
 var (
-	ApiVersion1 = ApiVersion("v1")
-	ApiVersion2 = ApiVersion("v2")
-	ApiVersion3 = ApiVersion("v3")
+	ApiVersion1 = ApiVersion("/v1")
+	ApiVersion2 = ApiVersion("/v2")
+	ApiVersion3 = ApiVersion("/v3")
 )
 
 type APIVersionRouter struct {
-	mux        *http.ServeMux
+	*http.ServeMux
 	apiVersion ApiVersion
+	middleware []core_http_middleware.Middleware
 }
 
-func NewAPIVersionRouter(apiVersion ApiVersion) *APIVersionRouter {
+func NewAPIVersionRouter(
+	apiVersion ApiVersion,
+	middleware ...core_http_middleware.Middleware,
+) *APIVersionRouter {
 	return &APIVersionRouter{
-		mux:        http.NewServeMux(),
+		ServeMux:   http.NewServeMux(),
 		apiVersion: apiVersion,
+		middleware: middleware,
 	}
 }
 
@@ -29,6 +36,10 @@ func (r *APIVersionRouter) RegisterRoutes(routes ...Route) {
 	for _, route := range routes {
 		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
 
-		r.mux.Handle(pattern, route.Handler)
+		r.Handle(pattern, route.WithMiddleware())
 	}
+}
+
+func (r *APIVersionRouter) WithMiddleware() http.Handler {
+	return core_http_middleware.ChainMiddleware(r, r.middleware...)
 }

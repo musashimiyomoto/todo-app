@@ -74,7 +74,12 @@ func (h *UsersHTTPHandler) PatchUser(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseHandler.JSONResponse(PatchUserResponse(userDTOFromDomain(userDomain)), http.StatusOK)
+	responseHandler.JSONResponse(
+		PatchUserResponse(
+			userDTOFromDomain(userDomain),
+		),
+		http.StatusOK,
+	)
 }
 
 func userPatchFromRequest(request PatchUserRequest) domain.UserPatch {

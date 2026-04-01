@@ -15,13 +15,21 @@ down:
 	@docker compose down
 
 cleanup:
-	@read -p "Clean all data? [y/N]: " ans; \
+	@read -p "Clean all postgres data? [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
 		docker compose down && \
 		sudo rm -rf ${PROJECT_ROOT}/out/pgdata && \
-		echo "Clean success!"; \
+		echo "Clean postgres data success!"; \
 	else \
-		echo "Clean canceled!"; \
+		echo "Clean postgres data canceled!"; \
+	fi
+
+	@read -p "Clean all logs? [y/N]: " ans; \
+	if [ "$$ans" = "y" ]; then \
+		sudo rm -rf ${PROJECT_ROOT}/out/logs && \
+		echo "Clean logs success!"; \
+	else \
+		echo "Clean logs canceled!"; \
 	fi
 
 migrate-create:

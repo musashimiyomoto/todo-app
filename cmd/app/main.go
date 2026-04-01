@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	core_config "github.com/musashimiyomoto/todo-app/internal/core/config"
 	core_logger "github.com/musashimiyomoto/todo-app/internal/core/core_logger"
 	core_pgx_pool "github.com/musashimiyomoto/todo-app/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/musashimiyomoto/todo-app/internal/core/transport/http/middleware"
@@ -20,8 +21,6 @@ import (
 	users_transport_http "github.com/musashimiyomoto/todo-app/internal/features/users/transport/http"
 	"go.uber.org/zap"
 )
-
-var timeZone = time.UTC
 
 func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_http_server.HTTPServer {
 	logger.Debug("Initializing feature", zap.String("feature", "users"))
@@ -52,7 +51,8 @@ func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_
 }
 
 func main() {
-	time.Local = timeZone
+	cfg := core_config.NewConfigMust()
+	time.Local = cfg.TimeZone
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
@@ -67,7 +67,7 @@ func main() {
 	}
 	defer logger.Close()
 
-	logger.Debug("Application time zone", zap.Any("zone", timeZone))
+	logger.Debug("Application time zone", zap.Any("zone", time.Local))
 
 	logger.Debug("Initializing database connection pool...")
 	pool, err := core_pgx_pool.NewPool(ctx, core_pgx_pool.NewConfigMust())

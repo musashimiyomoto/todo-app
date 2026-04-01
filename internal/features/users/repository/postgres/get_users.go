@@ -11,7 +11,7 @@ func (r *UsersRepository) GetUsers(ctx context.Context, limit *int, offset *int)
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
-	const query = `
+	query := `
 		SELECT id, version, full_name, phone_number
 		FROM users
 		ORDER BY id ASC

@@ -5,18 +5,24 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/musashimiyomoto/todo-app/internal/core/domain"
+	domain "github.com/musashimiyomoto/todo-app/internal/core/domain"
 	core_errors "github.com/musashimiyomoto/todo-app/internal/core/errors"
 	core_postgres_pool "github.com/musashimiyomoto/todo-app/internal/core/repository/postgres/pool"
 )
 
-func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
+func (r *TasksRepository) PatchTask(ctx context.Context, id int, task domain.Task) (domain.Task, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
 	query := `
-		INSERT INTO tasks (title, description, completed, created_at, completed_at, author_user_id)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		UPDATE tasks
+		SET 
+			title = $1,
+			description = $2,
+			completed = $3,
+			completed_at = $4,
+			version = version + 1
+		WHERE id = $5 AND version = $6
 		RETURNING id, version, title, description, completed, created_at, completed_at, author_user_id;
 	`
 
@@ -26,9 +32,9 @@ func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (dom
 		task.Title,
 		task.Description,
 		task.Completed,
-		task.CreatedAt,
 		task.CompletedAt,
-		task.AuthorUserID,
+		id,
+		task.Version,
 	)
 
 	var taskModel TaskModel
@@ -42,19 +48,17 @@ func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (dom
 		&taskModel.CompletedAt,
 		&taskModel.AuthorUserID,
 	); err != nil {
-		if errors.Is(err, core_postgres_pool.ErrViolatesForeignKey) {
+		if errors.Is(err, core_postgres_pool.ErrNoRows) {
 			return domain.Task{}, fmt.Errorf(
-				"%v: user with id=%d: %w",
-				err,
-				task.AuthorUserID,
-				core_errors.ErrNotFound,
+				"Task with ID %d concurrently accessed: %w",
+				id, core_errors.ErrConflict,
 			)
 		}
 
-		return domain.Task{}, fmt.Errorf("Scan create task: %w", err)
+		return domain.Task{}, fmt.Errorf("Scan error: %w", err)
 	}
 
-	taskDomain := domain.NewTask(
+	return domain.NewTask(
 		taskModel.ID,
 		taskModel.Version,
 		taskModel.Title,
@@ -63,7 +67,5 @@ func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (dom
 		taskModel.CreatedAt,
 		taskModel.CompletedAt,
 		taskModel.AuthorUserID,
-	)
-
-	return taskDomain, nil
+	), nil
 }

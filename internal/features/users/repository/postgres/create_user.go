@@ -11,7 +11,7 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
-	const query = `
+	query := `
 		INSERT INTO users (full_name, phone_number)
 		VALUES ($1, $2)
 		RETURNING id, version, full_name, phone_number;

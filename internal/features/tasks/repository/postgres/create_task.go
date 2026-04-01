@@ -14,7 +14,7 @@ func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (dom
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
-	const query = `
+	query := `
 		INSERT INTO tasks (title, description, completed, created_at, completed_at, author_user_id)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, version, title, description, completed, created_at, completed_at, author_user_id;

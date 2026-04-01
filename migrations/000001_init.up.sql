@@ -19,11 +19,11 @@ CREATE TABLE tasks (
     CHECK (
         (
             completed = FALSE
-            AND created_at IS NULL
+            AND completed_at IS NULL
         )
         OR (
             completed = TRUE
-            AND created_at IS NOT NULL
+            AND completed_at IS NOT NULL
             AND completed_at >= created_at
         )
     ),

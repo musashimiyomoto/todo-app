@@ -20,7 +20,12 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	row := r.pool.QueryRow(ctx, query, user.FullName, user.PhoneNumber)
 
 	var userModel UserModel
-	if err := row.Scan(&userModel.ID, &userModel.Version, &userModel.FullName, &userModel.PhoneNumber); err != nil {
+	if err := row.Scan(
+		&userModel.ID,
+		&userModel.Version,
+		&userModel.FullName,
+		&userModel.PhoneNumber,
+	); err != nil {
 		return domain.User{}, fmt.Errorf("Scan create user: %w", err)
 	}
 

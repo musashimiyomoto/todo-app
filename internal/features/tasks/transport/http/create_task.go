@@ -1,4 +1,4 @@
-package users_transport_http
+package tasks_transport_http
 
 import (
 	"net/http"
@@ -9,40 +9,41 @@ import (
 	core_http_response "github.com/musashimiyomoto/todo-app/internal/core/transport/http/response"
 )
 
-type CreateUserRequest struct {
-	FullName    string  `json:"full_name" validate:"required,min=3,max=100"`
-	PhoneNumber *string `json:"phone_number" validate:"omitempty,min=10,max=15,startswith=+"`
+type CreateTaskRequest struct {
+	Title        string  `json:"title" validate:"required,min=1,max=100"`
+	Description  *string `json:"description" validate:"omitempty,min=1,max=1000"`
+	AuthorUserID int     `json:"author_user_id" validate:"required"`
 }
 
-type CreateUserResponse UserDTOResponse
+type CreateTaskResponse TaskDTOResponse
 
-func (h *UsersHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
+func (h *TasksHTTPHandler) CreateTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
-	var request CreateUserRequest
+	var request CreateTaskRequest
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
 		responseHandler.ErrorResponse(err, "Failed to decode and validate HTTP request")
 
 		return
 	}
 
-	userDomain, err := h.usersService.CreateUser(ctx, userDomainFromDTO(request))
+	taskDomain, err := h.tasksService.CreateTask(ctx, taskDomainFromDTO(request))
 	if err != nil {
-		responseHandler.ErrorResponse(err, "Failed to create user")
+		responseHandler.ErrorResponse(err, "Failed to create task")
 
 		return
 	}
 
 	responseHandler.JSONResponse(
-		CreateUserResponse(
-			userDTOFromDomain(userDomain),
+		CreateTaskResponse(
+			taskDTOFromDomain(taskDomain),
 		),
 		http.StatusCreated,
 	)
 }
 
-func userDomainFromDTO(dto CreateUserRequest) domain.User {
-	return domain.NewUserUninitialized(dto.FullName, dto.PhoneNumber)
+func taskDomainFromDTO(dto CreateTaskRequest) domain.Task {
+	return domain.NewTaskUninitialized(dto.Title, dto.Description, dto.AuthorUserID)
 }

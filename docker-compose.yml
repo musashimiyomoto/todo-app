@@ -1,4 +1,19 @@
 services:
+  app:
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/cmd/app/Dockerfile
+    restart: always
+    depends_on:
+     postgres:
+       condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    volumes:
+      - ${PROJECT_ROOT}/out/logs:${LOGGER_FOLDER}
+
   postgres:
     image: postgres:18.1-bookworm
     restart: always
@@ -6,18 +21,25 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     volumes: 
       - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
-
-  adminer:
-    image: adminer:5.4.2-standalone
-    restart: always
-    ports:
-      - "8080:8080"
+    healthcheck:
+     test:
+       - "CMD"
+       - "sh"
+       - "-c"
+       - "pg_isready -U ${POSTGRES_USER}"
+     interval: 5s
+     timeout: 3s
+     retries: 40
 
   migrate:
     image: migrate/migrate:v4.19.1
     volumes:
      - ${PROJECT_ROOT}/migrations:/migrations
+
+  socat:
+    image: alpine/socat:1.8.0.3
+    command: tcp-listen:5432,fork,reuseaddr tcp-connect:postgres:5432
+    ports:
+      - "127.0.0.1:5432:5432"

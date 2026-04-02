@@ -40,10 +40,12 @@ func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 }
 
 func (s *HTTPServer) Run(ctx context.Context) error {
+	addr := fmt.Sprintf(":%d", s.config.Port)
+
 	mux := core_http_middleware.ChainMiddleware(s.mux, s.middleware...)
 
 	server := &http.Server{
-		Addr:    s.config.Addr,
+		Addr:    addr,
 		Handler: mux,
 	}
 
@@ -52,7 +54,7 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 	go func() {
 		defer close(ch)
 
-		s.log.Warn("Start HTTP Server", zap.String("Addr", s.config.Addr))
+		s.log.Warn("Start HTTP Server", zap.String("Addr", addr))
 
 		err := server.ListenAndServe()
 

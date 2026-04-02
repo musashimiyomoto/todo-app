@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	Addr            string        `envconfig:"ADDR" required:"true"`
+	Port            int           `envconfig:"PORT" required:"true"`
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
 }
 

@@ -47,6 +47,7 @@ func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
 		logger,
+		core_http_middleware.CORS(),
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
 		core_http_middleware.Trace(),

@@ -18,6 +18,18 @@ type GetStatisticsResponse struct {
 	TasksAverageCompletionTime *string
 }
 
+// GetStatistics godoc
+// @Summary 	 Get statistics
+// @Description  Returns task statistics with optional filtering by user and date range.
+// @Tags 		 Statistics
+// @Produce 	 json
+// @Param 		 user_id query int    false "Filter by user ID"
+// @Param 		 from    query string false "Start date (YYYY-MM-DD)"
+// @Param 		 to      query string false "End date (YYYY-MM-DD)"
+// @Success 	 200 {object} GetStatisticsResponse "Statistics"
+// @Failure 	 400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 	 500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router 		 /statistics [get]
 func (h *StatisticsHTTPHandler) GetStatistics(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

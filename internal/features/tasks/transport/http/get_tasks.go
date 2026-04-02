@@ -11,6 +11,18 @@ import (
 
 type GetTasksResponse []TaskDTOResponse
 
+// GetTasks 	 godoc
+// @Summary 	 Get tasks
+// @Description  Returns a list of tasks with optional filtering and pagination.
+// @Tags 		 Tasks
+// @Produce 	 json
+// @Param 		 user_id query int false "Filter by user ID"
+// @Param 		 limit   query int false "Limit"
+// @Param 		 offset  query int false "Offset"
+// @Success 	 200 {object} GetTasksResponse "List of tasks"
+// @Failure 	 400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 	 500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router 		 /tasks [get]
 func (h *TasksHTTPHandler) GetTasks(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

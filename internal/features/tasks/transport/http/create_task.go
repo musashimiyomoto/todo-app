@@ -17,6 +17,17 @@ type CreateTaskRequest struct {
 
 type CreateTaskResponse TaskDTOResponse
 
+// CreateTask 	 godoc
+// @Summary 	 Create task
+// @Description  Creates a new task in the system.
+// @Tags 		 Tasks
+// @Accept 		 json
+// @Produce 	 json
+// @Param 		 request body CreateTaskRequest true "Create task request"
+// @Success 	 201 {object} CreateTaskResponse "Task created successfully"
+// @Failure 	 400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 	 500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router 		 /tasks [post]
 func (h *TasksHTTPHandler) CreateTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

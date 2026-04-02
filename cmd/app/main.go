@@ -22,12 +22,20 @@ import (
 	users_postgres_repository "github.com/musashimiyomoto/todo-app/internal/features/users/repository/postgres"
 	users_service "github.com/musashimiyomoto/todo-app/internal/features/users/service"
 	users_transport_http "github.com/musashimiyomoto/todo-app/internal/features/users/transport/http"
+	web_fs_repository "github.com/musashimiyomoto/todo-app/internal/features/web/repository/file_system"
+	web_service "github.com/musashimiyomoto/todo-app/internal/features/web/service"
+	web_transport_http "github.com/musashimiyomoto/todo-app/internal/features/web/transport/http"
 	"go.uber.org/zap"
 
 	_ "github.com/musashimiyomoto/todo-app/docs"
 )
 
 func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_http_server.HTTPServer {
+	logger.Debug("Initializing feature", zap.String("feature", "web"))
+	webRepository := web_fs_repository.NewWebRepository()
+	webService := web_service.NewWebService(webRepository)
+	webTransportHTTP := web_transport_http.NewWebHTTPHandler(webService)
+
 	logger.Debug("Initializing feature", zap.String("feature", "users"))
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
@@ -53,6 +61,7 @@ func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_
 		core_http_middleware.Trace(),
 		core_http_middleware.Panic(),
 	)
+	httpServer.RegisterRoutes(webTransportHTTP.Routes()...)
 	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)

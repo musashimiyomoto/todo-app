@@ -17,5 +17,8 @@ FROM alpine:3.23
 WORKDIR /todo-app
 
 COPY --from=builder /todo-app/cmd/app/exe /todo-app
+COPY --from=builder /todo-app/public /todo-app/public
+
+ENV PROJECT_ROOT=/todo-app
 
 CMD ["/todo-app/exe"]

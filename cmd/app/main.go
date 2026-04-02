@@ -23,6 +23,8 @@ import (
 	users_service "github.com/musashimiyomoto/todo-app/internal/features/users/service"
 	users_transport_http "github.com/musashimiyomoto/todo-app/internal/features/users/transport/http"
 	"go.uber.org/zap"
+
+	_ "github.com/musashimiyomoto/todo-app/docs"
 )
 
 func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_http_server.HTTPServer {
@@ -55,10 +57,16 @@ func initHTTPServer(logger *core_logger.Logger, pool *core_pgx_pool.Pool) *core_
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRouters(apiVersionRouter)
+	httpServer.RegisterSwagger()
 
 	return httpServer
 }
 
+// @title 		 Todo App API
+// @version 	 1.0
+// @description  Todo Application REST API
+// @host 		 127.0.0.1:5050
+// @BasePath 	 /api/v1
 func main() {
 	cfg := core_config.NewConfigMust()
 	time.Local = cfg.TimeZone

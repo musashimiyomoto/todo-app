@@ -58,3 +58,11 @@ migrate-up:
 
 migrate-down:
 	@make migrate-action action=down
+
+swagger-generate:
+	@docker compose run --rm swagger \
+		init \
+		-g cmd/app/main.go \
+		-o docs \
+		--parseInternal \
+		--parseDependency
